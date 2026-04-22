@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Bus Parcel System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+    <main class="mx-auto flex min-h-screen w-full max-w-md items-center px-4 py-10">
+        <section class="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h1 class="text-2xl font-semibold text-slate-900">Bus Parcel Login</h1>
+            <p class="mt-1 text-sm text-slate-500">Sign in to search parcel routes.</p>
+
+            <form method="post" action="{{ url_for('login') }}" class="mt-6 space-y-4">
+                <div>
+                    <label for="email" class="mb-1 block text-sm font-medium text-slate-700">Email</label>
+                    <input id="email" name="email" type="email" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+
+                <div>
+                    <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Password</label>
+                    <input id="password" name="password" type="password" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+
+                <button type="submit" class="w-full rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800">
+                    Continue
+                </button>
+            </form>
+
+            {% if error %}
+                <p class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
+            {% endif %}
+
+            <p class="mt-4 text-sm text-slate-600">
+                New user?
+                <a href="{{ url_for('signup') }}" class="font-medium text-blue-700 hover:text-blue-800">Create an account</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

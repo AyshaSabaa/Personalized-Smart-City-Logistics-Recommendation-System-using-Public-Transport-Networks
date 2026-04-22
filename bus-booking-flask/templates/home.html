@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Bus Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+    <main class="mx-auto w-full max-w-5xl px-4 py-8 md:px-6">
+        <header class="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-semibold text-slate-900">Bus / Parcel Search</h1>
+                    <p class="mt-1 text-sm text-slate-500">Find the best route options quickly.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-slate-600">Logged in as <span class="font-medium text-slate-900">{{ username }}</span></p>
+                    <a href="{{ url_for('logout') }}" class="text-sm font-medium text-blue-700 hover:text-blue-800">Logout</a>
+                </div>
+            </div>
+        </header>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <form method="post" action="{{ url_for('home') }}" class="grid gap-4 md:grid-cols-3">
+                <div>
+                    <label for="source" class="mb-1 block text-sm font-medium text-slate-700">Source</label>
+                    <input id="source" name="source" type="text" value="{{ search_data.source }}" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+
+                <div>
+                    <label for="destination" class="mb-1 block text-sm font-medium text-slate-700">Destination</label>
+                    <input id="destination" name="destination" type="text" value="{{ search_data.destination }}" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+
+                <div>
+                    <label for="parcel_type" class="mb-1 block text-sm font-medium text-slate-700">Parcel Type (optional)</label>
+                    <input id="parcel_type" name="parcel_type" type="text" value="{{ search_data.parcel_type }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+
+                <div class="md:col-span-3">
+                    <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800">
+                        Find Routes
+                    </button>
+                </div>
+            </form>
+
+            {% if error %}
+                <p class="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
+            {% endif %}
+        </section>
+
+        {% if results %}
+            <section class="mt-6">
+                <h2 class="mb-3 text-lg font-semibold text-slate-900">Top 3 Recommendations</h2>
+                <div class="space-y-4">
+                    {% for item in results %}
+                        <article class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="grid gap-2 text-sm text-slate-700 md:grid-cols-2">
+                                <p><span class="font-semibold text-slate-900">Route:</span> {{ item.route_name }}</p>
+                                <p><span class="font-semibold text-slate-900">Operator:</span> {{ item.operator or "-" }}</p>
+                                <p><span class="font-semibold text-slate-900">Pickup:</span> {{ item.pickup_stop }}</p>
+                                <p><span class="font-semibold text-slate-900">Drop:</span> {{ item.drop_stop }}</p>
+                                <p><span class="font-semibold text-slate-900">Departure:</span> {{ item.departure or "-" }}</p>
+                                <p><span class="font-semibold text-slate-900">Duration:</span> {{ item.duration_hrs }} hrs</p>
+                                <p><span class="font-semibold text-slate-900">Distance:</span> {{ item.distance_km }} km</p>
+                                <p><span class="font-semibold text-slate-900">Estimated Fare:</span> {{ item.estimated_fare }}</p>
+                                <p class="md:col-span-2">
+                                    <span class="font-semibold text-slate-900">Route Type:</span>
+                                    {% if item.via_fallback %}
+                                        Fallback via major hub
+                                    {% elif item.is_direct_drop %}
+                                        Direct drop match
+                                    {% else %}
+                                        Nearest drop match
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <form method="post" action="{{ url_for('booking') }}" class="mt-4">
+                                <input type="hidden" name="route_name" value="{{ item.route_name }}">
+                                <input type="hidden" name="operator" value="{{ item.operator }}">
+                                <input type="hidden" name="pickup_stop" value="{{ item.pickup_stop }}">
+                                <input type="hidden" name="drop_stop" value="{{ item.drop_stop }}">
+                                <input type="hidden" name="departure" value="{{ item.departure }}">
+                                <input type="hidden" name="duration_hrs" value="{{ item.duration_hrs }}">
+                                <input type="hidden" name="distance_km" value="{{ item.distance_km }}">
+                                <input type="hidden" name="estimated_fare" value="{{ item.estimated_fare }}">
+                                <input type="hidden" name="route_type" value="{% if item.via_fallback %}Fallback via major hub{% elif item.is_direct_drop %}Direct drop match{% else %}Nearest drop match{% endif %}">
+                                <button type="submit" class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900">
+                                    Proceed to Booking
+                                </button>
+                            </form>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </main>
+</body>
+</html>
